@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Test</h1>
+    <button onclick="testConnection()">Test Connection</button>
+    <pre id="output"></pre>
+
+    <script>
+        const SUPABASE_URL = 'https://lfcdjhzplrkshzqyphcg.supabase.co'
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxmY2RqaHpwbHJrc2h6cXlwaGNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyNDU1MDAsImV4cCI6MjA3OTgyMTUwMH0.S24bsCe_yvYZHj10MObxmNMNWif_ayNKWaBCArdg3wI'
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+
+        async function testConnection() {
+            const output = document.getElementById('output')
+            output.textContent = 'Testing connection...\n\n'
+
+            try {
+                console.log('Creating Supabase client...')
+                output.textContent += 'Client created\n'
+                output.textContent += 'URL: ' + SUPABASE_URL + '\n'
+                output.textContent += 'Key: ' + SUPABASE_KEY.substring(0, 20) + '...\n\n'
+
+                console.log('Fetching students...')
+                output.textContent += 'Fetching students...\n'
+
+                const { data, error, status, statusText } = await supabase
+                    .from('students')
+                    .select('*')
+
+                output.textContent += 'Response received\n'
+                output.textContent += 'Status: ' + status + '\n'
+                output.textContent += 'Status Text: ' + statusText + '\n\n'
+
+                if (error) {
+                    output.textContent += 'ERROR:\n'
+                    output.textContent += JSON.stringify(error, null, 2) + '\n\n'
+                    console.error('Error:', error)
+                } else {
+                    output.textContent += 'SUCCESS!\n'
+                    output.textContent += 'Number of students: ' + (data?.length || 0) + '\n\n'
+                    output.textContent += 'Data:\n'
+                    output.textContent += JSON.stringify(data, null, 2)
+                    console.log('Data:', data)
+                }
+            } catch (err) {
+                output.textContent += 'EXCEPTION:\n'
+                output.textContent += err.toString() + '\n\n'
+                output.textContent += err.stack
+                console.error('Exception:', err)
+            }
+        }
+    </script>
+</body>
+</html>

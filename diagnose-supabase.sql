@@ -38,3 +38,4 @@ SELECT COUNT(*) as student_count FROM students;
 
 -- 6. Try to select all students
 SELECT * FROM students LIMIT 5;
+m 
