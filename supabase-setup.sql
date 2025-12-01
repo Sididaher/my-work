@@ -1,7 +1,7 @@
 -- Student Management System - Database Setup Script
 -- Run this in your Supabase SQL Editor
 
--- Create students table if it doesn't exist
+-- STEP 1: Create students table if it doesn't exist
 CREATE TABLE IF NOT EXISTS students (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
@@ -11,35 +11,32 @@ CREATE TABLE IF NOT EXISTS students (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security
-ALTER TABLE students ENABLE ROW LEVEL SECURITY;
-
--- Drop existing policies if they exist
+-- STEP 2: Drop ALL existing policies first (important!)
 DROP POLICY IF EXISTS "Enable read access for all users" ON students;
 DROP POLICY IF EXISTS "Enable insert for all users" ON students;
 DROP POLICY IF EXISTS "Enable update for all users" ON students;
 DROP POLICY IF EXISTS "Enable delete for all users" ON students;
+DROP POLICY IF EXISTS "Allow all operations" ON students;
 
--- Create policies for public access (for development)
--- Allow anyone to read students
-CREATE POLICY "Enable read access for all users"
-ON students FOR SELECT
-USING (true);
+-- STEP 3: Disable RLS temporarily
+ALTER TABLE students DISABLE ROW LEVEL SECURITY;
 
--- Allow anyone to insert students
-CREATE POLICY "Enable insert for all users"
-ON students FOR INSERT
+-- STEP 4: Re-enable RLS
+ALTER TABLE students ENABLE ROW LEVEL SECURITY;
+
+-- STEP 5: Create a single permissive policy for all operations
+CREATE POLICY "Allow all operations"
+ON students
+FOR ALL
+TO public, anon, authenticated
+USING (true)
 WITH CHECK (true);
 
--- Allow anyone to update students
-CREATE POLICY "Enable update for all users"
-ON students FOR UPDATE
-USING (true);
-
--- Allow anyone to delete students
-CREATE POLICY "Enable delete for all users"
-ON students FOR DELETE
-USING (true);
+-- STEP 6: Grant permissions to anon role (the role used by your app)
+GRANT ALL ON students TO anon;
+GRANT ALL ON students TO authenticated;
+GRANT USAGE, SELECT ON SEQUENCE students_id_seq TO anon;
+GRANT USAGE, SELECT ON SEQUENCE students_id_seq TO authenticated;
 
 -- Optional: Add some sample data
 -- Uncomment the lines below if you want to add sample students
