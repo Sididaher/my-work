@@ -65,7 +65,11 @@ export default function Home() {
         .eq("id", editId)
 
       if (error) {
-        toast.error("Failed to update")
+        if (error.message?.includes('row-level security') || error.code === 'PGRST301') {
+          toast.error('Database access denied. Please check QUICK-FIX.md for setup instructions.')
+        } else {
+          toast.error(`Failed to update: ${error.message}`)
+        }
       } else {
         toast.success("Student updated successfully!")
         setEditId(null)
@@ -86,7 +90,11 @@ export default function Home() {
       })
 
       if (error) {
-        toast.error(`Failed to create ${error.message}`)
+        if (error.message?.includes('row-level security') || error.code === 'PGRST301') {
+          toast.error('Database access denied. Please check QUICK-FIX.md for setup instructions.')
+        } else {
+          toast.error(`Failed to create: ${error.message}`)
+        }
       } else {
         toast.success("Student added successfully")
       }
@@ -110,7 +118,13 @@ export default function Home() {
 
       if (error) {
         console.error('Error fetching students:', error)
-        toast.error(`Failed to fetch students: ${error.message || 'Unknown error'}`)
+
+        // Check if it's an RLS policy error
+        if (error.message?.includes('row-level security') || error.code === 'PGRST301') {
+          toast.error('Database access denied. Please run the SQL setup script in Supabase. See QUICK-FIX.md or SETUP-INSTRUCTIONS.md for help.')
+        } else {
+          toast.error(`Failed to fetch students: ${error.message || 'Unknown error'}`)
+        }
       } else {
         console.log('Fetched students:', data)
         setStudents(data || [])
@@ -150,7 +164,11 @@ export default function Home() {
       const { error } = await supabase.from("students").delete().eq("id", numericId)
 
       if (error) {
-        toast.error("Failed to delete student")
+        if (error.message?.includes('row-level security') || error.code === 'PGRST301') {
+          toast.error('Database access denied. Please check QUICK-FIX.md for setup instructions.')
+        } else {
+          toast.error(`Failed to delete: ${error.message}`)
+        }
       } else {
         toast.success("Student deleted sucessfully")
         fetchStudents()
