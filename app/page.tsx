@@ -114,10 +114,23 @@ export default function Home() {
   // Fetch Students Data
   async function fetchStudents() {
     try {
-      const { data, error } = await supabase.from("students").select("*")
+      console.log('=== Fetching Students ===')
+      console.log('Supabase client:', supabase ? 'Initialized' : 'NOT initialized')
+
+      const { data, error, status, statusText } = await supabase.from("students").select("*")
+
+      console.log('Response status:', status)
+      console.log('Response statusText:', statusText)
+      console.log('Response data:', data)
+      console.log('Response error:', error)
 
       if (error) {
-        console.error('Error fetching students:', error)
+        console.error('=== Error fetching students ===')
+        console.error('Error code:', error.code)
+        console.error('Error message:', error.message)
+        console.error('Error details:', error.details)
+        console.error('Error hint:', error.hint)
+        console.error('Full error object:', JSON.stringify(error, null, 2))
 
         // Check if it's an RLS policy error
         if (error.message?.includes('row-level security') || error.code === 'PGRST301') {
@@ -126,11 +139,19 @@ export default function Home() {
           toast.error(`Failed to fetch students: ${error.message || 'Unknown error'}`)
         }
       } else {
-        console.log('Fetched students:', data)
+        console.log('=== Successfully fetched students ===')
+        console.log('Number of students:', data?.length || 0)
+        console.log('Students data:', data)
         setStudents(data || [])
+        if (data && data.length > 0) {
+          toast.success(`Loaded ${data.length} student(s)`)
+        }
       }
     } catch (err) {
-      console.error('Unexpected error fetching students:', err)
+      console.error('=== Unexpected error fetching students ===')
+      console.error('Error type:', typeof err)
+      console.error('Error:', err)
+      console.error('Error stack:', err instanceof Error ? err.stack : 'No stack')
       toast.error('Failed to connect to database. Please check your connection.')
     }
   }
